@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/background">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
+        <Button android:id="@+id/btn_pick_from" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="From"
+            style="@style/Widget.Material3.Button.OutlinedButton"/>
+        <TextView android:id="@+id/tv_from_date" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="—" android:textColor="@color/text_primary"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text=" → " android:textColor="@color/text_secondary"/>
+        <TextView android:id="@+id/tv_to_date" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="—" android:textColor="@color/text_primary"/>
+        <Button android:id="@+id/btn_pick_to" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="To"
+            style="@style/Widget.Material3.Button.OutlinedButton"/>
+    </LinearLayout>
+
+    <Button android:id="@+id/btn_fetch_stats" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp" android:text="Fetch Statistics"
+        android:backgroundTint="@color/primary"/>
+
+    <ProgressBar android:id="@+id/progress_bar" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <TextView android:id="@+id/tv_stats_results" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:padding="16dp"
+            android:fontFamily="monospace" android:textSize="13sp"
+            android:textColor="@color/text_primary" android:lineSpacingMultiplier="1.4"
+            android:text="Select a date range and tap Fetch Statistics."/>
+    </ScrollView>
+</LinearLayout>

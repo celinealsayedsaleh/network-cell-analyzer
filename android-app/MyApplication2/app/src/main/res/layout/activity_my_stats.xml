@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_my_stats.xml
+     Requires MPAndroidChart: implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+     in app/build.gradle, and in settings.gradle:
+       maven { url 'https://jitpack.io' }
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="My Statistics"
+            android:background="@color/primary"
+            app:titleTextColor="@android:color/white"
+            app:navigationIconTint="@android:color/white"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Date range picker card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DATE RANGE"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.1"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="10dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_my_pick_from"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="From"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            app:cornerRadius="8dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_my_from_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="—"
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="→"
+                            android:textColor="@color/text_secondary"
+                            android:paddingHorizontal="6dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_my_to_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="—"
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_my_pick_to"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="To"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            app:cornerRadius="8dp"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_my_fetch"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Fetch My Stats"
+                        app:cornerRadius="10dp"
+                        android:backgroundTint="@color/primary"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Progress -->
+            <ProgressBar
+                android:id="@+id/my_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <!-- No data -->
+            <TextView
+                android:id="@+id/tv_no_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select a date range and tap Fetch My Stats."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="visible"/>
+
+            <!-- Charts container (hidden until data loads) -->
+            <LinearLayout
+                android:id="@+id/layout_charts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Section: Network Time Share -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NETWORK TIME SHARE"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/surface">
+
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/pie_network_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp"
+                        android:padding="8dp"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Section: Signal Power -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AVERAGE SIGNAL POWER"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/surface">
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/bar_signal"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:padding="8dp"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Section: SINR -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AVERAGE SINR / SNR"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/surface">
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/bar_sinr"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:padding="8dp"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+
+                <!-- Section: Avg Signal Per Device -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AVG SIGNAL POWER PER DEVICE"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/surface">
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/bar_signal_device"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:padding="8dp"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Section: Operator breakdown -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OPERATOR BREAKDOWN"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/surface">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:id="@+id/tv_operator_breakdown"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:textSize="14sp"
+                            android:lineSpacingMultiplier="1.6"
+                            android:textColor="@color/text_primary"/>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary brand color changed to blue -->
+    <color name="primary">#1A6FC4</color>
+    <color name="primary_dark">#155BA0</color>
+    <color name="background">#F2F4F3</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="divider">#E0E0E0</color>
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#757575</color>
+
+    <!-- Network type accent colors -->
+    <color name="accent_2g">#3B8BD4</color>
+    <color name="accent_3g">#E07B2E</color>
+    <color name="accent_4g">#1A6FC4</color>
+    <color name="accent_5g">#15803D</color>  <!-- green for 5G -->
+    <color name="card_inactive">#BDBDBD</color>
+
+    <!-- Welcome screen -->
+    <color name="welcome_bg">#0D1B2A</color>
+    <color name="welcome_text_primary">#FFFFFF</color>
+    <color name="welcome_text_secondary">#8BA3BB</color>
+
+    <!-- Home nav icon backgrounds -->
+    <color name="nav_blue">#1A6FC4</color>
+    <color name="nav_teal">#0F7A5E</color>
+    <color name="nav_orange">#C46B0A</color>
+</resources>

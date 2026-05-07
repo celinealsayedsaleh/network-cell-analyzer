@@ -1,0 +1,1370 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Cell Analyzer — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --brand: #1a6fc4;
+            --brand-lt: #eff6ff;
+            --blue: #2563eb;
+            --blue-lt: #eff6ff;
+            --orange: #d97706;
+            --orange-lt: #fffbeb;
+            --red: #dc2626;
+            --purple: #7c3aed;
+            --purple-lt: #f5f3ff;
+            --bg: #f4f6f5;
+            --surface: #ffffff;
+            --border: #e2e8e4;
+            --text: #111827;
+            --muted: #6b7280;
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans', sans-serif;
+            --radius: 10px;
+            --sidebar-w: 240px;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-w);
+            background: #0d1b2a;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .logo-mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: var(--brand);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+            .logo-mark svg {
+                width: 16px;
+                height: 16px;
+                stroke: #fff;
+                fill: none;
+                stroke-width: 2;
+                stroke-linecap: round;
+            }
+
+        .app-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .course-tag {
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 2px;
+            font-family: var(--mono);
+        }
+
+        .sidebar-nav {
+            padding: 12px 10px;
+            flex: 1;
+        }
+
+        .nav-label {
+            font-size: 9.5px;
+            color: rgba(255,255,255,0.28);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 10px 10px 4px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+            color: rgba(255,255,255,0.5);
+            font-size: 12.5px;
+            text-decoration: none;
+            margin-bottom: 2px;
+            transition: background 0.13s, color 0.13s;
+        }
+
+            .nav-item:hover {
+                background: rgba(255,255,255,0.05);
+                color: rgba(255,255,255,0.85);
+            }
+
+            .nav-item.active {
+                background: var(--brand);
+                color: #fff;
+            }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            padding: 14px 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 10px;
+            color: rgba(255,255,255,0.2);
+            font-family: var(--mono);
+        }
+
+        .main {
+            margin-left: var(--sidebar-w);
+            padding: 26px 30px;
+            min-height: 100vh;
+        }
+
+        .page-tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 4px;
+            margin-bottom: 22px;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            padding: 7px 18px;
+            border-radius: 7px;
+            border: none;
+            font-family: var(--sans);
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.13s;
+            background: transparent;
+            color: var(--muted);
+        }
+
+            .tab-btn.active {
+                background: var(--brand);
+                color: #fff;
+            }
+
+            .tab-btn:hover:not(.active) {
+                background: var(--bg);
+                color: var(--text);
+            }
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        .page-sub {
+            font-size: 12.5px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--brand-lt);
+            color: var(--brand);
+            border: 1px solid #bdd4ef;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.2
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+            }
+
+            .stat-card.brand::before {
+                background: var(--brand);
+            }
+
+            .stat-card.blue::before {
+                background: var(--blue);
+            }
+
+            .stat-card.orange::before {
+                background: var(--orange);
+            }
+
+            .stat-card.purple::before {
+                background: var(--purple);
+            }
+
+        .stat-label {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-sub {
+            font-size: 11.5px;
+            color: var(--muted);
+        }
+
+        .stat-card.brand .stat-value {
+            color: var(--brand);
+        }
+
+        .stat-card.blue .stat-value {
+            color: var(--blue);
+        }
+
+        .stat-card.orange .stat-value {
+            color: var(--orange);
+        }
+
+        .stat-card.purple .stat-value {
+            color: var(--purple);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .chart-sub {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 200px;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .section-badge {
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            padding: 10px 20px;
+            background: #f8faf9;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 11px 20px;
+            border-bottom: 1px solid #f0f4f2;
+            font-size: 12.5px;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8faf9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 10px;
+            font-size: 10.5px;
+            font-weight: 700;
+        }
+
+        .badge-5g {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .badge-4g {
+            background: var(--brand-lt);
+            color: var(--brand);
+        }
+
+        .badge-lte {
+            background: var(--brand-lt);
+            color: var(--brand);
+        }
+
+        .badge-3g {
+            background: var(--orange-lt);
+            color: var(--orange);
+        }
+
+        .badge-2g {
+            background: var(--blue-lt);
+            color: var(--blue);
+        }
+
+        .badge-unknown {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .sig-good {
+            color: #15803d;
+            font-weight: 600;
+        }
+
+        .sig-ok {
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .sig-poor {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        .op-list {
+            padding: 14px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .op-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .op-name {
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+
+        .op-pct {
+            font-size: 12px;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .op-bar-bg {
+            height: 7px;
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+
+        .op-bar {
+            height: 7px;
+            border-radius: 4px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+        }
+
+        .metric-label {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            font-weight: 600;
+            font-family: var(--mono);
+        }
+
+        .metric-sub {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+            .filter-bar select {
+                font-family: var(--sans);
+                font-size: 12.5px;
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 7px 12px;
+                background: var(--surface);
+                color: var(--text);
+                outline: none;
+                cursor: pointer;
+                min-width: 280px;
+            }
+
+                .filter-bar select:focus {
+                    border-color: var(--brand);
+                }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        .empty-state {
+            padding: 44px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border);
+            border-top-color: var(--brand);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+        }
+
+        .mono {
+            font-family: var(--mono);
+            font-size: 11.5px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: #15803d;
+            font-weight: 600;
+        }
+
+        .live-indicator-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #15803d;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .filtered-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        @media (max-width: 960px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px 16px;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        // ── Helpers defined early so switchTab can use them ──────────────────────
+        function toLocalDatetimeInput(ms) {
+            var d = new Date(ms);
+            var pad = function (n) { return n.toString().padStart(2, '0'); };
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+                + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+
+        // switchTab must be global and defined before <body> so inline onclick works
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab-content').forEach(function (el) { el.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById('tab-' + name).classList.add('active');
+            btn.classList.add('active');
+            if (name === 'global') { globalLoaded = false; loadGlobalStats(); }
+            if (name === 'devices') loadDeviceList();
+            if (name === 'measurements') {
+                if (!measInitDone) {
+                    initMeasurements();
+                } else {
+                    // Always refresh on tab switch; respect filter state
+                    if (isFiltered) { runMeasSearch(0); }
+                    else { runLive(0); }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-mark">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+            </div>
+            <div class="app-name">Network Cell Analyzer</div>
+            <div class="course-tag">AUB · EECE 451 · Spring 2026</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-label">Monitor</div>
+            <a class="nav-item active" href="/"><span class="nav-dot"></span> Dashboard</a>
+            <div class="nav-label">API</div>
+            <a class="nav-item" href="/api/devices" target="_blank"><span class="nav-dot"></span> Devices JSON</a>
+            <a class="nav-item" href="/api/stats" target="_blank"><span class="nav-dot"></span> Stats JSON</a>
+            <a class="nav-item" href="/api/handovers" target="_blank"><span class="nav-dot"></span> Handovers JSON</a>
+            <a class="nav-item" href="/api/quality" target="_blank"><span class="nav-dot"></span> Quality JSON</a>
+        </nav>
+        <div class="sidebar-footer">auto-refresh every 5 s</div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- Tab bar -->
+        <div class="page-tabs">
+            <button class="tab-btn active" onclick="switchTab('overview',     this)">Overview</button>
+            <button class="tab-btn" onclick="switchTab('global',       this)">Global Stats</button>
+            <button class="tab-btn" onclick="switchTab('devices',      this)">Per-Device</button>
+            <button class="tab-btn" onclick="switchTab('measurements', this)">Measurements</button>
+        </div>
+
+        <!-- ═══ OVERVIEW ═══ -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Server Dashboard</div>
+                    <div class="page-sub">Real-time cell data from connected Android devices</div>
+                </div>
+                <div class="live-badge"><div class="live-dot"></div><span id="ov-live-label">— devices live</span></div>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-card brand">
+                    <div class="stat-label">Total Reports</div>
+                    <div class="stat-value" id="ov-reports"><span class="spinner"></span></div>
+                    <div class="stat-sub">measurements stored</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-label">Known Devices</div>
+                    <div class="stat-value" id="ov-devices"><span class="spinner"></span></div>
+                    <div class="stat-sub">unique device IDs</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">Currently Live</div>
+                    <div class="stat-value" id="ov-live-val"><span class="spinner"></span></div>
+                    <div class="stat-sub">active in last 30 s</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">Avg Signal</div>
+                    <div class="stat-value" id="ov-avg-sig"><span class="spinner"></span></div>
+                    <div class="stat-sub">dBm overall</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Network Type Distribution</div>
+                    <div class="chart-sub">Share of reports by generation (last 7 days)</div>
+                    <div class="chart-legend" id="ov-legend-net"></div>
+                    <div class="chart-wrap"><canvas id="ovChartNet" role="img" aria-label="Network type pie chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Operator Time Share</div>
+                    <div class="chart-sub">% of reports per operator (last 7 days)</div>
+                    <div class="chart-legend" id="ov-legend-op"></div>
+                    <div class="chart-wrap"><canvas id="ovChartOp" role="img" aria-label="Operator share bar chart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-card" style="margin-bottom:18px">
+                <div class="chart-title">Average Signal Power by Network Type</div>
+                <div class="chart-sub">Mean RSSI (dBm) — higher is better (closer to 0)</div>
+                <div class="chart-wrap"><canvas id="ovChartSig" role="img" aria-label="Avg signal by type"></canvas></div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-title">Connected Devices</span>
+                    <span class="section-badge" id="ov-dev-badge">loading…</span>
+                </div>
+                <div id="ov-dev-table"><div class="empty-state"><span class="spinner"></span></div></div>
+            </div>
+        </div>
+
+        <!-- ═══ GLOBAL STATS ═══ -->
+        <div id="tab-global" class="tab-content">
+            <div class="page-header">
+                <div><div class="page-title">Global Statistics</div><div class="page-sub">Aggregated across all devices and operators</div></div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-card"><div class="metric-label">Overall Avg Signal</div><div class="metric-value" id="g-avg-sig">—</div><div class="metric-sub">dBm (all types)</div></div>
+                <div class="metric-card"><div class="metric-label">Overall Avg SINR/SNR</div><div class="metric-value" id="g-avg-sinr">—</div><div class="metric-sub">dB average</div></div>
+                <div class="metric-card"><div class="metric-label">Dominant Network</div><div class="metric-value" id="g-dom-net" style="font-size:18px">—</div><div class="metric-sub">most reported type</div></div>
+            </div>
+            <div class="section-card" style="margin-bottom:18px">
+                <div class="section-header"><span class="section-title">Connectivity by Operator</span><span class="section-badge">% of total reports</span></div>
+                <div class="op-list" id="g-op-bars"><div class="empty-state"><span class="spinner"></span></div></div>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Avg Signal Power by Type</div>
+                    <div class="chart-sub">Mean RSSI (dBm) per generation</div>
+                    <div class="chart-wrap"><canvas id="gChartSig" role="img" aria-label="Avg signal per type"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Avg SINR/SNR by Type</div>
+                    <div class="chart-sub">Signal quality (dB) per generation</div>
+                    <div class="chart-wrap"><canvas id="gChartSinr" role="img" aria-label="Avg SINR per type"></canvas></div>
+                </div>
+            </div>
+            <div class="chart-card" style="margin-bottom:18px">
+                <div class="chart-title">Avg Signal Power per Device</div>
+                <div class="chart-sub">Compare signal experience across all devices</div>
+                <div id="gChartDevWrap" style="position:relative;height:220px">
+                    <canvas id="gChartDev" role="img" aria-label="Avg signal per device"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PER-DEVICE ═══ -->
+        <div id="tab-devices" class="tab-content">
+            <div class="page-header">
+                <div><div class="page-title">Per-Device Statistics</div><div class="page-sub">Drill into individual device performance</div></div>
+            </div>
+            <div class="filter-bar">
+                <span class="filter-label">Select device:</span>
+                <select id="deviceSelect" onchange="loadDeviceStats()">
+                    <option value="">— choose a device —</option>
+                </select>
+            </div>
+            <div id="device-detail"><div class="empty-state">Select a device above to see its statistics.</div></div>
+        </div>
+
+        <!-- ═══ MEASUREMENTS ═══ -->
+        <div id="tab-measurements" class="tab-content">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Measurements Browser</div>
+                    <div class="page-sub">Showing all measurements live — use filters below to narrow results</div>
+                </div>
+                <div id="meas-mode-badge" class="live-indicator">
+                    <div class="live-indicator-dot"></div> LIVE
+                </div>
+            </div>
+
+            <!-- Filter bar -->
+            <div class="section-card" style="margin-bottom:18px">
+                <div class="section-header">
+                    <span class="section-title">Filters <span style="font-size:11px;font-weight:400;color:var(--muted)">(optional — leave blank to see all live data)</span></span>
+                    <span class="section-badge" id="meas-count-badge">—</span>
+                </div>
+                <div style="padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+
+                    <!-- Date from -->
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                        <label style="font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">From</label>
+                        <input type="datetime-local" id="mf-from" style="font-family:var(--sans);font-size:12.5px;border:1px solid var(--border);border-radius:7px;padding:7px 10px;background:var(--surface);color:var(--text);outline:none" />
+                    </div>
+
+                    <!-- Date to -->
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                        <label style="font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">To</label>
+                        <input type="datetime-local" id="mf-to" style="font-family:var(--sans);font-size:12.5px;border:1px solid var(--border);border-radius:7px;padding:7px 10px;background:var(--surface);color:var(--text);outline:none" />
+                    </div>
+
+                    <!-- Device -->
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                        <label style="font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Device</label>
+                        <select id="mf-device" style="font-family:var(--sans);font-size:12.5px;border:1px solid var(--border);border-radius:7px;padding:7px 10px;background:var(--surface);color:var(--text);outline:none;min-width:200px">
+                            <option value="">All devices</option>
+                        </select>
+                    </div>
+
+                    <!-- Operator -->
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                        <label style="font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Operator</label>
+                        <select id="mf-operator" style="font-family:var(--sans);font-size:12.5px;border:1px solid var(--border);border-radius:7px;padding:7px 10px;background:var(--surface);color:var(--text);outline:none;min-width:140px">
+                            <option value="">All operators</option>
+                        </select>
+                    </div>
+
+                    <!-- Network type -->
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                        <label style="font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Network Type</label>
+                        <select id="mf-type" style="font-family:var(--sans);font-size:12.5px;border:1px solid var(--border);border-radius:7px;padding:7px 10px;background:var(--surface);color:var(--text);outline:none">
+                            <option value="">All types</option>
+                            <option value="5G">5G</option>
+                            <option value="4G">4G</option>
+                            <option value="3G">3G</option>
+                            <option value="2G">2G</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div style="display:flex;gap:8px;align-items:flex-end">
+                        <button onclick="isFiltered=true; updateModeBadge(); runMeasSearch(0);"
+                                style="padding:8px 18px;background:var(--brand);color:#fff;border:none;border-radius:7px;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer">
+                            Search
+                        </button>
+                        <button onclick="resetMeasFilters()"
+                                style="padding:8px 14px;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:12.5px;cursor:pointer">
+                            Reset / Live
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results table -->
+            <div class="section-card">
+                <div id="meas-table"><div class="empty-state"><span class="spinner"></span> Loading…</div></div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="meas-pagination" style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:14px"></div>
+        </div>
+
+    </main>
+
+    <script>
+        var PALETTE = ['#1a6fc4', '#2563eb', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#65a30d'];
+
+        function netColor(type) {
+            if (!type) return '#9ca3af';
+            var t = type.toUpperCase();
+            if (t === '5G') return '#15803d';
+            if (t === '4G' || t === 'LTE') return '#1a6fc4';
+            if (t === '3G') return '#d97706';
+            if (t === '2G') return '#2563eb';
+            return '#9ca3af';
+        }
+
+        function netBadge(type) {
+            if (!type) return '<span class="badge badge-unknown">—</span>';
+            var t = type.toUpperCase();
+            if (t === '5G') return '<span class="badge badge-5g">5G</span>';
+            if (t === '4G') return '<span class="badge badge-4g">4G</span>';
+            if (t === 'LTE') return '<span class="badge badge-lte">LTE</span>';
+            if (t === '3G') return '<span class="badge badge-3g">3G</span>';
+            if (t === '2G') return '<span class="badge badge-2g">2G</span>';
+            return '<span class="badge badge-unknown">' + type + '</span>';
+        }
+
+        function sigClass(dbm) {
+            if (dbm >= -70) return 'sig-good';
+            if (dbm >= -90) return 'sig-ok';
+            return 'sig-poor';
+        }
+
+        function destroyChart(id) {
+            var c = Chart.getChart(id);
+            if (c) c.destroy();
+        }
+
+        function opBarsHTML(arr) {
+            if (!arr || arr.length === 0) return '<div class="empty-state">No data yet.</div>';
+            return arr.map(function (op, i) {
+                var color = PALETTE[i % PALETTE.length];
+                return '<div>'
+                    + '<div class="op-header"><span class="op-name">' + op.operator + '</span><span class="op-pct">' + op.percentage + '%</span></div>'
+                    + '<div class="op-bar-bg"><div class="op-bar" style="width:' + op.percentage + '%;background:' + color + '"></div></div>'
+                    + '</div>';
+            }).join('');
+        }
+
+        // ─── OVERVIEW ─────────────────────────────────────────────────────────────
+        var ovLoaded = false;
+
+        async function loadOverview() {
+            if (ovLoaded) return;
+            ovLoaded = true;
+            try {
+                var devRes = await fetch('/api/devices');
+                var devData = await devRes.json();
+                var lc = devData.live_count || 0;
+                document.getElementById('ov-live-label').textContent = lc + ' device' + (lc !== 1 ? 's' : '') + ' live';
+                document.getElementById('ov-live-val').textContent = lc;
+                document.getElementById('ov-devices').textContent = devData.total_devices || 0;
+                document.getElementById('ov-dev-badge').textContent = (devData.total_devices || 0) + ' total';
+
+                var totalRep = (devData.devices || []).reduce(function (s, d) { return s + (d.report_count || 0); }, 0);
+                document.getElementById('ov-reports').textContent = totalRep.toLocaleString();
+
+                if (devData.devices && devData.devices.length > 0) {
+                    var rows = devData.devices.map(function (d) {
+                        var id = d.device_id.length > 16 ? d.device_id.slice(0, 16) + '…' : d.device_id;
+                        var initial = (d.user_name && d.user_name !== '—') ? d.user_name[0].toUpperCase() : '?';
+                        var avatarStyle = 'display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-size:11px;font-weight:700;margin-right:6px;';
+                        return '<tr>'
+                            + '<td><div style="display:flex;align-items:center"><span style="' + avatarStyle + '">' + initial + '</span>' + (d.user_name || '—') + '</div></td>'
+                            + '<td class="mono">' + id + '</td>'
+                            + '<td class="mono">' + (d.ip_address || '—') + '</td>'
+                            + '<td class="mono" style="font-size:11px">' + (d.mac_address || '—') + '</td>'
+                            + '<td><strong>' + d.report_count + '</strong></td>'
+                            + '<td style="color:var(--muted);font-size:12px">' + d.last_seen + '</td>'
+                            + '</tr>';
+                    }).join('');
+                    document.getElementById('ov-dev-table').innerHTML =
+                        '<table><thead><tr><th>User</th><th>Device ID</th><th>IP</th><th>MAC</th><th>Reports</th><th>Last Seen</th></tr></thead><tbody>' + rows + '</tbody></table>';
+                } else {
+                    document.getElementById('ov-dev-table').innerHTML = '<div class="empty-state">No devices connected yet.</div>';
+                }
+
+                var statRes = await fetch('/api/stats');
+                var stat = await statRes.json();
+                var sigArr = stat.avg_signal_per_type || [];
+                if (sigArr.length > 0) {
+                    var avg = sigArr.reduce(function (s, x) { return s + x.avg_dbm; }, 0) / sigArr.length;
+                    document.getElementById('ov-avg-sig').textContent = avg.toFixed(1) + ' dBm';
+                } else {
+                    document.getElementById('ov-avg-sig').textContent = '—';
+                }
+
+                var netT = stat.network_type_time || [];
+                document.getElementById('ov-legend-net').innerHTML = netT.map(function (x) {
+                    return '<span class="legend-item"><span class="legend-dot" style="background:' + netColor(x.type) + '"></span>' + x.type + ' ' + x.percentage + '%</span>';
+                }).join('');
+                destroyChart('ovChartNet');
+                new Chart(document.getElementById('ovChartNet'), {
+                    type: 'doughnut',
+                    data: { labels: netT.map(function (x) { return x.type; }), datasets: [{ data: netT.map(function (x) { return x.percentage; }), backgroundColor: netT.map(function (x) { return netColor(x.type); }), borderWidth: 2, borderColor: '#fff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return ' ' + c.label + ': ' + c.parsed + '%'; } } } } }
+                });
+
+                var opT = stat.operator_time || [];
+                document.getElementById('ov-legend-op').innerHTML = opT.map(function (x, i) {
+                    return '<span class="legend-item"><span class="legend-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span>' + x.operator + '</span>';
+                }).join('');
+                destroyChart('ovChartOp');
+                new Chart(document.getElementById('ovChartOp'), {
+                    type: 'bar',
+                    data: { labels: opT.map(function (x) { return x.operator; }), datasets: [{ data: opT.map(function (x) { return x.percentage; }), backgroundColor: PALETTE, borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return ' ' + c.parsed.x + '%'; } } } }, scales: { x: { grid: { color: '#f0f0f0' }, ticks: { callback: function (v) { return v + '%'; } } }, y: { grid: { display: false } } } }
+                });
+
+                destroyChart('ovChartSig');
+                new Chart(document.getElementById('ovChartSig'), {
+                    type: 'bar',
+                    data: { labels: sigArr.map(function (x) { return x.type; }), datasets: [{ data: sigArr.map(function (x) { return x.avg_dbm; }), backgroundColor: sigArr.map(function (x) { return netColor(x.type); }), borderRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#f0f0f0' }, ticks: { callback: function (v) { return v + ' dBm'; } } }, x: { grid: { display: false } } } }
+                });
+
+            } catch (e) { console.error('Overview error:', e); }
+        }
+
+        // ─── GLOBAL STATS ─────────────────────────────────────────────────────────
+        var globalLoaded = false;
+
+        async function loadGlobalStats() {
+            if (globalLoaded) return;
+            globalLoaded = true;
+            try {
+                var res = await fetch('/api/stats');
+                var data = await res.json();
+                var sigArr = data.avg_signal_per_type || [];
+                var sinrArr = (data.avg_sinr_per_type || []).filter(function (x) { return x.avg_sinr != null; });
+
+                if (sigArr.length > 0) {
+                    var avg = sigArr.reduce(function (s, x) { return s + x.avg_dbm; }, 0) / sigArr.length;
+                    document.getElementById('g-avg-sig').textContent = avg.toFixed(1) + ' dBm';
+                }
+                if (sinrArr.length > 0) {
+                    var avg = sinrArr.reduce(function (s, x) { return s + x.avg_sinr; }, 0) / sinrArr.length;
+                    document.getElementById('g-avg-sinr').textContent = avg.toFixed(1) + ' dB';
+                }
+                if (data.network_type_time && data.network_type_time.length > 0) {
+                    document.getElementById('g-dom-net').textContent = data.network_type_time[0].type;
+                }
+
+                document.getElementById('g-op-bars').innerHTML = opBarsHTML(data.operator_time);
+
+                destroyChart('gChartSig');
+                new Chart(document.getElementById('gChartSig'), {
+                    type: 'bar',
+                    data: { labels: sigArr.map(function (x) { return x.type; }), datasets: [{ data: sigArr.map(function (x) { return x.avg_dbm; }), backgroundColor: sigArr.map(function (x) { return netColor(x.type); }), borderRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: function (v) { return v + ' dBm'; } }, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } } }
+                });
+
+                destroyChart('gChartSinr');
+                new Chart(document.getElementById('gChartSinr'), {
+                    type: 'bar',
+                    data: { labels: sinrArr.map(function (x) { return x.type; }), datasets: [{ data: sinrArr.map(function (x) { return x.avg_sinr; }), backgroundColor: '#7c3aed', borderRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: function (v) { return v + ' dB'; } }, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } } }
+                });
+
+                var devSig = data.avg_signal_per_device || [];
+                document.getElementById('gChartDevWrap').style.height = Math.max(220, devSig.length * 44 + 60) + 'px';
+                destroyChart('gChartDev');
+                new Chart(document.getElementById('gChartDev'), {
+                    type: 'bar',
+                    data: { labels: devSig.map(function (x) { return x.device_id.length > 18 ? x.device_id.slice(0, 18) + '…' : x.device_id; }), datasets: [{ data: devSig.map(function (x) { return x.avg_dbm; }), backgroundColor: '#1a6fc4', borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: function (v) { return v + ' dBm'; } }, grid: { color: '#f0f0f0' } }, y: { grid: { display: false }, ticks: { font: { family: 'IBM Plex Mono', size: 11 } } } } }
+                });
+
+            } catch (e) { console.error('Global stats error:', e); }
+        }
+
+        // ─── PER-DEVICE ───────────────────────────────────────────────────────────
+        var deviceListLoaded = false;
+
+        async function loadDeviceList() {
+            if (deviceListLoaded) return;
+            deviceListLoaded = true;
+            try {
+                var res = await fetch('/api/devices');
+                var data = await res.json();
+                var sel = document.getElementById('deviceSelect');
+                (data.devices || []).forEach(function (d) {
+                    var opt = document.createElement('option');
+                    opt.value = d.device_id;
+                    var user = (d.user_name && d.user_name !== '—') ? d.user_name + ' — ' : '';
+                    var label = d.device_id.length > 24 ? d.device_id.slice(0, 24) + '…' : d.device_id;
+                    opt.textContent = user + label + '  (' + d.report_count + ' reports)';
+                    sel.appendChild(opt);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDeviceStats() {
+            var deviceId = document.getElementById('deviceSelect').value;
+            var container = document.getElementById('device-detail');
+            if (!deviceId) {
+                container.innerHTML = '<div class="empty-state">Select a device above to see its statistics.</div>';
+                return;
+            }
+            container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+            try {
+                var res = await fetch('/api/stats?device_id=' + encodeURIComponent(deviceId));
+                var data = await res.json();
+                var sigArr = data.avg_signal_per_type || [];
+                var sinrArr = (data.avg_sinr_per_type || []).filter(function (x) { return x.avg_sinr != null; });
+                var netT = data.network_type_time || [];
+
+                var avgSig = sigArr.length ? (sigArr.reduce(function (s, x) { return s + x.avg_dbm; }, 0) / sigArr.length).toFixed(1) + ' dBm' : '—';
+                var avgSinr = sinrArr.length ? (sinrArr.reduce(function (s, x) { return s + x.avg_sinr; }, 0) / sinrArr.length).toFixed(1) + ' dB' : '—';
+                var domNet = netT.length ? netT[0].type : '—';
+                var uid = 'dev' + Math.random().toString(36).slice(2, 8);
+
+                container.innerHTML =
+                    '<div class="metric-grid">'
+                    + '<div class="metric-card"><div class="metric-label">Avg Signal</div><div class="metric-value">' + avgSig + '</div></div>'
+                    + '<div class="metric-card"><div class="metric-label">Avg SINR/SNR</div><div class="metric-value">' + avgSinr + '</div></div>'
+                    + '<div class="metric-card"><div class="metric-label">Main Network</div><div class="metric-value" style="font-size:18px">' + domNet + '</div></div>'
+                    + '</div>'
+                    + '<div class="charts-grid">'
+                    + '<div class="chart-card"><div class="chart-title">Network Type Share</div><div class="chart-sub">% of reports for this device</div><div class="chart-wrap"><canvas id="dn-' + uid + '"></canvas></div></div>'
+                    + '<div class="chart-card"><div class="chart-title">Avg Signal by Type</div><div class="chart-sub">dBm per generation</div><div class="chart-wrap"><canvas id="ds-' + uid + '"></canvas></div></div>'
+                    + '</div>'
+                    + '<div class="section-card"><div class="section-header"><span class="section-title">Operator Breakdown</span></div>'
+                    + '<div class="op-list">' + opBarsHTML(data.operator_time) + '</div></div>';
+
+                new Chart(document.getElementById('dn-' + uid), {
+                    type: 'doughnut',
+                    data: { labels: netT.map(function (x) { return x.type; }), datasets: [{ data: netT.map(function (x) { return x.percentage; }), backgroundColor: netT.map(function (x) { return netColor(x.type); }), borderWidth: 2, borderColor: '#fff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return ' ' + c.label + ': ' + c.parsed + '%'; } } } } }
+                });
+                new Chart(document.getElementById('ds-' + uid), {
+                    type: 'bar',
+                    data: { labels: sigArr.map(function (x) { return x.type; }), datasets: [{ data: sigArr.map(function (x) { return x.avg_dbm; }), backgroundColor: sigArr.map(function (x) { return netColor(x.type); }), borderRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: function (v) { return v + ' dBm'; } }, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } } }
+                });
+            } catch (e) {
+                document.getElementById('device-detail').innerHTML = '<div class="empty-state">Failed to load device stats.</div>';
+            }
+        }
+
+        // ─── MEASUREMENTS ─────────────────────────────────────────────────────────
+        var measInitDone = false;
+        var measCurrentOffset = 0;
+        var measPageSize = 50;
+        var isFiltered = false;  // false = live mode, true = user applied filters
+
+        function updateModeBadge() {
+            var badge = document.getElementById('meas-mode-badge');
+            if (isFiltered) {
+                badge.className = 'filtered-indicator';
+                badge.innerHTML = '⚙ FILTERED';
+            } else {
+                badge.className = 'live-indicator';
+                badge.innerHTML = '<div class="live-indicator-dot"></div> LIVE';
+            }
+        }
+
+        function buildMeasTableHTML(rows, total) {
+            if (rows.length === 0) {
+                document.getElementById('meas-table').innerHTML = '<div class="empty-state">No measurements found.</div>';
+                return;
+            }
+            var html = '<table><thead><tr>'
+                + '<th>#</th><th>Timestamp</th><th>User</th><th>Device ID</th>'
+                + '<th>Operator</th><th>Type</th><th>Signal</th>'
+                + '<th>SINR/SNR</th><th>Band</th><th>Cell ID</th>'
+                + '</tr></thead><tbody>';
+            rows.forEach(function (r, i) {
+                var sc = sigClass(r.signal_power);
+                var num = measCurrentOffset + i + 1;
+                html += '<tr>'
+                    + '<td style="color:var(--muted);font-size:11px">' + num + '</td>'
+                    + '<td style="font-size:11.5px;white-space:nowrap">' + r.timestamp + '</td>'
+                    + '<td style="font-size:12px;font-weight:500">' + (r.user_name || '—') + '</td>'
+                    + '<td class="mono" style="font-size:11px">' + r.device_id + '</td>'
+                    + '<td><strong>' + r.operator + '</strong></td>'
+                    + '<td>' + netBadge(r.network_type) + '</td>'
+                    + '<td><span class="' + sc + '">' + r.signal_power + ' dBm</span></td>'
+                    + '<td>' + (r.sinr_snr != null ? Number(r.sinr_snr).toFixed(1) + ' dB' : '—') + '</td>'
+                    + '<td class="mono" style="font-size:11px">' + (r.frequency_band || '—') + '</td>'
+                    + '<td class="mono" style="font-size:11px">' + (r.cell_id || '—') + '</td>'
+                    + '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById('meas-table').innerHTML = html;
+            renderMeasPagination(total);
+        }
+
+        // Live mode: no date filter, always fetches latest
+        async function runLive(offset, silent) {
+            measCurrentOffset = offset || 0;
+            var params = new URLSearchParams({ limit: measPageSize, offset: measCurrentOffset });
+            var devId = document.getElementById('mf-device').value;
+            var op = document.getElementById('mf-operator').value;
+            var nt = document.getElementById('mf-type').value;
+            if (devId) params.set('device_id', devId);
+            if (op) params.set('operator', op);
+            if (nt) params.set('network_type', nt);
+
+            if (!silent) {
+                document.getElementById('meas-table').innerHTML = '<div class="empty-state"><span class="spinner"></span> Loading…</div>';
+                document.getElementById('meas-pagination').innerHTML = '';
+            }
+
+            try {
+                var res = await fetch('/api/measurements?' + params.toString());
+                var data = await res.json();
+                var total = data.total || 0;
+                document.getElementById('meas-count-badge').textContent = total.toLocaleString() + ' total';
+                populateOperatorDropdown(data.operators);
+                buildMeasTableHTML(data.measurements || [], total);
+            } catch (e) {
+                if (!silent) document.getElementById('meas-table').innerHTML = '<div class="empty-state">Could not load: ' + e.message + '</div>';
+            }
+        }
+
+        // Filtered mode: uses date range + all filter inputs
+        async function runMeasSearch(offset, silent) {
+            measCurrentOffset = offset || 0;
+            var fromVal = document.getElementById('mf-from').value;
+            var toVal = document.getElementById('mf-to').value;
+            var params = new URLSearchParams({ limit: measPageSize, offset: measCurrentOffset });
+
+            // Only add date params if the user actually set them
+            if (fromVal) params.set('from_ms', new Date(fromVal).getTime());
+            if (toVal) params.set('to_ms', new Date(toVal).getTime());
+
+            var devId = document.getElementById('mf-device').value;
+            var op = document.getElementById('mf-operator').value;
+            var nt = document.getElementById('mf-type').value;
+            if (devId) params.set('device_id', devId);
+            if (op) params.set('operator', op);
+            if (nt) params.set('network_type', nt);
+
+            if (!silent) {
+                document.getElementById('meas-table').innerHTML = '<div class="empty-state"><span class="spinner"></span> Searching…</div>';
+                document.getElementById('meas-pagination').innerHTML = '';
+            }
+
+            try {
+                var res = await fetch('/api/measurements?' + params.toString());
+                var data = await res.json();
+                var total = data.total || 0;
+                document.getElementById('meas-count-badge').textContent = total.toLocaleString() + ' results';
+                populateOperatorDropdown(data.operators);
+                buildMeasTableHTML(data.measurements || [], total);
+            } catch (e) {
+                if (!silent) document.getElementById('meas-table').innerHTML = '<div class="empty-state">Could not load: ' + e.message + '</div>';
+            }
+        }
+
+        function populateOperatorDropdown(operators) {
+            var opSel = document.getElementById('mf-operator');
+            if (opSel.options.length === 1 && operators) {
+                operators.forEach(function (o) {
+                    var opt = document.createElement('option');
+                    opt.value = o; opt.textContent = o; opSel.appendChild(opt);
+                });
+            }
+        }
+
+        async function initMeasurements() {
+            if (measInitDone) return;
+            measInitDone = true;
+            // Populate device dropdown
+            try {
+                var dr = await fetch('/api/devices');
+                var dd = await dr.json();
+                var sel = document.getElementById('mf-device');
+                (dd.devices || []).forEach(function (d) {
+                    var opt = document.createElement('option');
+                    opt.value = d.device_id;
+                    var user = (d.user_name && d.user_name !== '—') ? d.user_name + ' — ' : '';
+                    opt.textContent = user + d.device_id;
+                    sel.appendChild(opt);
+                });
+            } catch (e) { }
+            // Start in live mode — no date filter
+            runLive(0);
+        }
+
+        function renderMeasPagination(total) {
+            var pages = Math.ceil(total / measPageSize);
+            var current = Math.floor(measCurrentOffset / measPageSize);
+            if (pages <= 1) { document.getElementById('meas-pagination').innerHTML = ''; return; }
+            var pg = document.getElementById('meas-pagination');
+            var btn = 'padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-family:var(--sans);font-size:12px;cursor:pointer;margin:2px;';
+            var abtn = btn + 'background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600;';
+            var fn = isFiltered ? 'runMeasSearch' : 'runLive';
+            var html = '';
+            if (current > 0)
+                html += '<button style="' + btn + '" onclick="' + fn + '(' + ((current - 1) * measPageSize) + ')">← Prev</button>';
+            var s = Math.max(0, current - 3), e = Math.min(pages - 1, current + 3);
+            for (var p = s; p <= e; p++)
+                html += '<button style="' + (p === current ? abtn : btn) + '" onclick="' + fn + '(' + (p * measPageSize) + ')">' + (p + 1) + '</button>';
+            if (current < pages - 1)
+                html += '<button style="' + btn + '" onclick="' + fn + '(' + ((current + 1) * measPageSize) + ')">Next →</button>';
+            var from = measCurrentOffset + 1, to = Math.min(measCurrentOffset + measPageSize, total);
+            html += '<span style="font-size:11.5px;color:var(--muted);margin-left:8px">' + from + '–' + to + ' of ' + total.toLocaleString() + '</span>';
+            pg.innerHTML = html;
+        }
+
+        function resetMeasFilters() {
+            document.getElementById('mf-from').value = '';
+            document.getElementById('mf-to').value = '';
+            document.getElementById('mf-device').value = '';
+            document.getElementById('mf-operator').value = '';
+            document.getElementById('mf-type').value = '';
+            isFiltered = false;
+            updateModeBadge();
+            runLive(0);
+        }
+
+        // ─── Boot + auto-refresh ──────────────────────────────────────────────────
+        loadOverview();
+
+        setInterval(function () {
+            ovLoaded = false; globalLoaded = false;
+            loadOverview();
+            var activeId = (document.querySelector('.tab-content.active') || {}).id;
+            if (activeId === 'tab-global') { globalLoaded = false; loadGlobalStats(); }
+            if (activeId === 'tab-measurements') {
+                // Silent refresh — don't flash the spinner
+                if (isFiltered) { runMeasSearch(measCurrentOffset, true); }
+                else { runLive(0, true); }
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_welcome.xml
+     Full-screen welcome with gradient background.
+     Login card shown first; tapping "Create account" swaps to Register card.
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/welcome_bg">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="64dp"
+            android:paddingBottom="40dp">
+
+            <!-- Decorative icon -->
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@android:drawable/ic_menu_compass"
+                android:background="@drawable/circle_primary"
+                android:padding="18dp"
+                android:layout_marginBottom="24dp"
+                app:tint="@android:color/white"/>
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tv_welcome_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:letterSpacing="0.02"
+                android:text="Network Cell Analyzer"
+                android:textColor="@color/welcome_text_primary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tv_welcome_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Monitor your mobile signal in real time"
+                android:textSize="15sp"
+                android:textColor="@color/welcome_text_secondary"
+                android:gravity="center"
+                android:layout_marginBottom="48dp"/>
+
+            <!-- ══════════════════ LOGIN CARD ══════════════════ -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/surface"
+                android:layout_marginBottom="16dp"
+                android:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Welcome back"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sign in to continue"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="24dp"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Username"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                        android:layout_marginBottom="12dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_login_username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPersonName"
+                            android:imeOptions="actionNext"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Password"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_lock_lock"
+                        app:endIconMode="password_toggle"
+                        android:layout_marginBottom="24dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_login_password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"
+                            android:imeOptions="actionDone"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_login"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Sign In"
+                        android:textSize="16sp"
+                        app:cornerRadius="12dp"
+                        android:backgroundTint="@color/primary"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_go_register"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Don't have an account? Create one"
+                        android:textColor="@color/primary"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:padding="8dp"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══════════════════ REGISTER CARD ══════════════════ -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_register"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/surface"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Create account"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start monitoring your signal today"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="24dp"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Choose a username"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                        android:layout_marginBottom="12dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_reg_username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPersonName"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Password (min 6 characters)"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_lock_lock"
+                        app:endIconMode="password_toggle"
+                        android:layout_marginBottom="12dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_reg_password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Confirm password"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_lock_lock"
+                        app:endIconMode="password_toggle"
+                        android:layout_marginBottom="24dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_reg_password2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_register"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Create Account"
+                        android:textSize="16sp"
+                        app:cornerRadius="12dp"
+                        android:backgroundTint="@color/primary"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_go_login"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Already have an account? Sign in"
+                        android:textColor="@color/primary"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:padding="8dp"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
